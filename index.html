@@ -2050,51 +2050,6 @@ Presence.menu();
  if(typeof b.takePendingJoin==='function'){
   Promise.resolve(b.takePendingJoin()).then(s=>{if(s)applySecret(s)}).catch(()=>{});
  }
-})();
-rary failed to load — you need an internet connection the first time you connect.',true)}
-Presence.menu();
-
-/* Discord "Invite to join" — the desktop build delivers the join secret
-   here. The website never sees window.discordRPC, so this is a no-op there. */
-(function bindDiscordJoin(){
- const b=(typeof window!=='undefined'&&window.discordRPC)||null;
- if(!b)return;
- function applySecret(secret){
-  const code=Presence.decodeJoinSecret(secret);
-  if(!code){setNetStatus('That Discord invite did not contain a room.',true);return}
-  if(Net.role||Net.begun){
-   toast('Already at a table. Buzzword for the invite was '+codeLabel(code)+'.');
-   return;
-  }
-  $('joinForm').classList.add('show');
-  $('hostForm').classList.remove('show');
-  $('lobbyView').style.display='none';
-  const box=$('joinCode');
-  if(box)box.value=codeLabel(code);
-  const existing=cleanName(($('joinName')&&$('joinName').value)||($('hostName')&&$('hostName').value)||'');
-  function go(nm){
-   const name=cleanName(nm);
-   if(!name){setNetStatus('Discord invite for “'+codeLabel(code)+'” — type a name and hit JOIN GAME.');return}
-   if($('joinName'))$('joinName').value=name;
-   $('btnJoinGo').disabled=true;
-   guestJoin(name,code);
-  }
-  if(existing){go(existing);return}
-  if(typeof b.getUser==='function'){
-   Promise.resolve(b.getUser()).then(u=>{
-    const fromDiscord=cleanName(u&&(u.username||''));
-    if(fromDiscord)go(fromDiscord);
-    else setNetStatus('Discord invite for “'+codeLabel(code)+'” — type a name and hit JOIN GAME.');
-   }).catch(()=>setNetStatus('Discord invite for “'+codeLabel(code)+'” — type a name and hit JOIN GAME.'));
-   return;
-  }
-  setNetStatus('Discord invite for “'+codeLabel(code)+'” — type a name and hit JOIN GAME.');
- }
- if(typeof b.onJoin==='function')b.onJoin(applySecret);
- if(typeof b.takePendingJoin==='function'){
-  Promise.resolve(b.takePendingJoin()).then(s=>{if(s)applySecret(s)}).catch(()=>{});
- }
-})();
-</script>
+})();</script>
 </body>
 </html>
