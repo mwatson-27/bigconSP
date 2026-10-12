@@ -192,7 +192,38 @@ button.mini:hover{background:#168388}
    <button class="gobtn" id="btnJoinGo">JOIN GAME</button>
   </div>
   <div id="lobbyView">
-   <div class="codeline"><div class="cl">ROO
+   <div class="codeline"><div class="cl">ROOM CODE — OR SEND A DISCORD INVITE FROM YOUR PROFILE / + IN CHAT</div><div class="cc" id="roomCodeBig">·····</div><button class="copybtn" id="btnCopy">📋 copy code</button><div class="gn" style="margin-top:8px;font-size:11px;color:#9ad;letter-spacing:0;text-transform:none">Desktop build: friends can Join from the Discord invite card. The buzzword still works on the website.</div></div>
+   <div class="goalrow">
+    <div class="cl">WIN TARGET — REACH THIS MUCH MONEY <i>AND</i> HOLD ONE OF EVERY NODE TYPE</div>
+    <div class="goalctl"><span class="gd">$</span><input id="goalInput" type="number" min="20" max="999" step="5" value="100"><span class="gn" id="goalNote">the host sets the target</span></div>
+    <div class="gn" style="margin-top:6px">THE FULL SET: BANK · REGULATOR · CHART · WILD · CORPORATE · COMMODITY</div>
+   </div>
+   <div class="lobbychat">
+    <div class="cl">THE WIRE — LOBBY CHAT</div>
+    <div class="chatlist" id="lobbyChatList"></div>
+    <div class="chatrow"><input id="lobbyChatInput" maxlength="140" placeholder="talk your book before the con starts…"><button id="lobbyChatSend">SEND</button></div>
+   </div>
+   <div class="sublabel" style="margin-top:14px">PICK A FACE — one player per character</div>
+   <div class="chargrid" id="charGrid"></div>
+   <div class="lobbylist" id="lobbyList"></div>
+   <button class="gobtn" id="btnStart" style="margin-top:12px" disabled>🔥 START THE CON (need 2+ players)</button>
+  </div>
+  </details>
+  <div id="netStatus"></div>
+  <div class="setuplinks"><button data-srules>📖 How to play</button></div>
+ </div>
+</div>
+
+<div id="app">
+ <div id="boardWrap">
+  <div class="zoombar"><button id="zin">+</button><button id="zout">−</button><button id="zreset">⌂</button></div>
+  <div class="panhint">drag to pan · scroll to zoom</div>
+  <svg id="board" viewBox="0 0 2400 1560" preserveAspectRatio="xMidYMid meet"></svg>
+ </div>
+ <aside id="side"></aside>
+</div>
+
+<script>
 'use strict';
 const $=id=>document.getElementById(id);(function(){const img=$('splashLogo');if(!img)return;let done=false;const swap=()=>{if(done)return;done=true;img.src='https://raw.githubusercontent.com/waxmotson/The-big-con-desktop/master/big%20con%20logo.png';img.alt='THE BIG CON'};setTimeout(swap,5000)})();
 
@@ -711,17 +742,14 @@ function scheduleRender(){
 function sync(now){if(Net.role==='host'){scheduleRender();sendState(now)}else scheduleRender()}
 function sysTo(pi,msg){if(Net.role!=='host')return;if(pi===Net.myIdx){toast(msg);return}sendTo(pi,{t:'sys',msg})}
 function askPlayer(pi,opt){return new Promise(res=>{
-  if(Net.solo&&pi!==0){const opts=opt.options||[];let choice=opt.def!==undefined?opt.def:(opts[0]?opts[0].v:undefined);if(opt.title&&opt.title.includes('BACKROOM DEALS'))choice=0;if(opt.title&&(opt.title.includes('SPIN THE PRESS')||opt.title.includes('FOX SPIN')))choice='no';setTimeout(()=>res(choice),120);return}
-  if(Net.role!=='host'){modal(opt).then(res);return}
-  const def=opt.def!==undefined?opt.def:(opt.options&&opt.options[0]?opt.options[0].v:undefined);
-  if(pi===Net.myIdx){modal(opt).then(res);return}
-  const c=Net.conns[pi];
-  if(!c||!c.open){res(def);return}
-  const pid=++Net.promptSeq;
-  Net.pendingPrompts.set(pid,{res,def,pi});
-  flushState();
-  sendTo(pi,{t:'prompt',pid,title:opt.title,html:opt.html,body:opt.body,options:opt.options});
-  setTimeout(()=>{const p=Net.pendingPrompts.get(pid);if(p){Net.pendingPrompts.delete(pid);res(p.def)}},opt.timeout||45000);
+ if(Net.solo&&pi!==0){const opts=opt.options||[];let choice=opt.def!==undefined?opt.def:(opts[0]?opts[0].v:undefined);if(opt.title&&opt.title.includes('BACKROOM DEALS'))choice=0;if(opt.title&&(opt.title.includes('SPIN THE PRESS')||opt.title.includes('FOX SPIN')))choice='no';setTimeout(()=>res(choice),120);return}
+ if(Net.role!=='host'){modal(opt).then(res);return}
+ const def=opt.def!==undefined?opt.def:(opt.options&&opt.options[0]?opt.options[0].v:undefined);
+ if(pi===Net.myIdx){modal(opt).then(res);return}
+ const c=Net.conns[pi];if(!c||!c.open){res(def);return}
+ const pid=++Net.promptSeq;Net.pendingPrompts.set(pid,{res,def,pi});flushState();
+ sendTo(pi,{t:'prompt',pid,title:opt.title,html:opt.html,body:opt.body,options:opt.options});
+ setTimeout(()=>{const p=Net.pendingPrompts.get(pid);if(p){Net.pendingPrompts.delete(pid);res(p.def)}},opt.timeout||45000);
 })}
 /* A table-wide bulletin nobody has to wait on: the raid is news, not a turn. */
 function announceAll(title,html){
@@ -2050,6 +2078,7 @@ Presence.menu();
  if(typeof b.takePendingJoin==='function'){
   Promise.resolve(b.takePendingJoin()).then(s=>{if(s)applySecret(s)}).catch(()=>{});
  }
-})();</script>
+})();
+</script>
 </body>
 </html>
