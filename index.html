@@ -713,15 +713,15 @@ function sysTo(pi,msg){if(Net.role!=='host')return;if(pi===Net.myIdx){toast(msg)
 function askPlayer(pi,opt){return new Promise(res=>{
   if(Net.solo&&pi!==0){const opts=opt.options||[];let choice=opt.def!==undefined?opt.def:(opts[0]?opts[0].v:undefined);if(opt.title&&opt.title.includes('BACKROOM DEALS'))choice=0;if(opt.title&&(opt.title.includes('SPIN THE PRESS')||opt.title.includes('FOX SPIN')))choice='no';setTimeout(()=>res(choice),120);return}
   if(Net.role!=='host'){modal(opt).then(res);return}
- const def=opt.def!==undefined?opt.def:(opt.options&&opt.options[0]?opt.options[0].v:undefined);
- if(pi===Net.myIdx){modal(opt).then(res);return}
- const c=Net.conns[pi];
- if(!c||!c.open){res(def);return}
- const pid=++Net.promptSeq;
- Net.pendingPrompts.set(pid,{res,def,pi});
- flushState();
- sendTo(pi,{t:'prompt',pid,title:opt.title,html:opt.html,body:opt.body,options:opt.options});
- setTimeout(()=>{const p=Net.pendingPrompts.get(pid);if(p){Net.pendingPrompts.delete(pid);res(p.def)}},opt.timeout||45000);
+  const def=opt.def!==undefined?opt.def:(opt.options&&opt.options[0]?opt.options[0].v:undefined);
+  if(pi===Net.myIdx){modal(opt).then(res);return}
+  const c=Net.conns[pi];
+  if(!c||!c.open){res(def);return}
+  const pid=++Net.promptSeq;
+  Net.pendingPrompts.set(pid,{res,def,pi});
+  flushState();
+  sendTo(pi,{t:'prompt',pid,title:opt.title,html:opt.html,body:opt.body,options:opt.options});
+  setTimeout(()=>{const p=Net.pendingPrompts.get(pid);if(p){Net.pendingPrompts.delete(pid);res(p.def)}},opt.timeout||45000);
 })}
 /* A table-wide bulletin nobody has to wait on: the raid is news, not a turn. */
 function announceAll(title,html){
