@@ -732,16 +732,14 @@ function announceAll(title,html){
  modal({title,html,options:[{label:'Continue',v:1}]});
 }
 async function revealAll(title,html){
-  if(Net.solo){await modal({title,html,options:[{label:'Continue',v:1}]});return}
-  if(Net.role!=='host'){await modal({title,html,options:[{label:'Continue',v:1}]});return}
+ if(Net.solo){await modal({title,html,options:[{label:'Continue',v:1}]});return}
+ if(Net.role!=='host'){await modal({title,html,options:[{label:'Continue',v:1}]});return}
  const eid=++Net.evSeq;const need=new Set();
  flushState();
  for(let i=0;i<S.players.length;i++){if(i===Net.myIdx)continue;const c=Net.conns[i];if(c&&c.open){sendTo(i,{t:'event',eid,title,html});need.add(i)}}
  await modal({title,html,options:[{label:'Continue',v:1}]});
- /* the table has already seen the card — a short grace, then play moves on */
  if(need.size){await new Promise(res=>{Net.acks={eid,set:need,res,timer:setTimeout(()=>{if(Net.acks){Net.acks=null;res()}},5000)}})}
 }
-
 /* ================= GAME FLOW (host) ================= */
 function applyLayoutFromState(){
  if(!S)return;
